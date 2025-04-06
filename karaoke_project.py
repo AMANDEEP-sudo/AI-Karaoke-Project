@@ -1,10 +1,10 @@
 from gtts import gTTS
 from lyricsgenius import Genius
-from playsound import playsound
 import yt_dlp
 import os
 import threading
 import time
+import pygame
 
 # === SETUP ===
 GENIUS_API_TOKEN = "Ck5Q6uo_T8LYrAKw8l8e7i1jhqLox4l-9zrb1cd4oUvuWUkP_d2fPFv_hhwjv2m-"  # <-- your token
@@ -55,31 +55,38 @@ tts = gTTS(text=tts_text)
 tts.save("partner.mp3")
 print("Partner audio generated!")
 
-# === PLAY BOTH AUDIO FILES TOGETHER ===
-def play_audio(file_path):
-    playsound(file_path)
-
+# === PLAY AUDIO AND DISPLAY LYRICS ===
 def display_lyrics(lyrics_lines):
     time.sleep(1)  # Small pause before starting lyrics
     for line in lyrics_lines:
         print(line.strip())
-        time.sleep(2)  # Approximate timing between lines (adjust if needed)
+        time.sleep(2)  # Approximate timing between lines
 
-print("Playing the karaoke duet!")
+print("Starting the karaoke session!")
 
-karaoke_thread = threading.Thread(target=play_audio, args=("song.mp3",))
-partner_thread = threading.Thread(target=play_audio, args=("partner.mp3",))
+# Initialize pygame mixer
+pygame.mixer.init()
+
+# Load audio
+pygame.mixer.music.load("song.mp3")
+partner_sound = pygame.mixer.Sound("partner.mp3")
+
+# Play both sounds
+pygame.mixer.music.play()
+partner_sound.play()
+
+# Start lyrics display in parallel
 lyrics_thread = threading.Thread(target=display_lyrics, args=(lyrics_lines,))
-
-karaoke_thread.start()
-partner_thread.start()
 lyrics_thread.start()
 
-karaoke_thread.join()
-partner_thread.join()
+# Wait for music to finish
+while pygame.mixer.music.get_busy():
+    time.sleep(1)
+
 lyrics_thread.join()
 
 # === CLEANUP ===
+pygame.mixer.quit()
 os.remove("song.mp3")
 os.remove("partner.mp3")
 print("Done!")

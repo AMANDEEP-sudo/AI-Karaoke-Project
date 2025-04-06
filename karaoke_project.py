@@ -73,3 +73,7 @@ partner_thread.join()
 os.remove("song.mp3")
 os.remove("partner.mp3")
 print("Done!")
+
+# === Exit ===
+print("Karaoke session complete!")
+input("Press Enter to exit...")

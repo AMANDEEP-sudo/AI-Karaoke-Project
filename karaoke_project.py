@@ -1,9 +1,9 @@
+from lyricsgenius import Genius
+import yt_dlp
 import os
 import threading
 import time
 import pygame
-import yt_dlp
-from lyricsgenius import Genius
 from mutagen.mp3 import MP3
 
 # === SETUP ===
@@ -18,7 +18,7 @@ song = genius.search_song(song_name)
 if song:
     print("\nLyrics found!\n")
     lyrics = song.lyrics
-    lyrics_lines = [line.strip() for line in song.lyrics.split('\n') if line.strip()]
+    lyrics_lines = [line.strip() for line in lyrics.split('\n') if line.strip()]
 else:
     print("Lyrics not found.")
     exit()
@@ -46,22 +46,30 @@ def download_audio(search_query):
 download_audio(song_name)
 print("Audio downloaded!")
 
-# === DISPLAY LYRICS FUNCTION ===
-def display_lyrics(lyrics_lines, pre_delay=3.0, line_delay=2.0):
-    # Preparation countdown
-    print("\n🎤 Get ready to sing! 🎤\n")
-    for countdown in range(3, 0, -1):
-        print(f"Starting in {countdown}...")
-        time.sleep(1)
-    print("Let's go!\n")
-    time.sleep(pre_delay)  # Extra wait for sync
+# === GET AUDIO LENGTH ===
+audio = MP3("song.mp3")
+audio_length = audio.info.length
 
-    # Display lyrics line by line
-    for line in lyrics_lines:
-        os.system('cls' if os.name == 'nt' else 'clear')  # Clear terminal
-        print(f"\033[92m{line}\033[0m")  # Green highlight
-        time.sleep(line_delay)
+# === HIGHLIGHT FUNCTION ===
+def print_highlighted_lyrics(lyrics_lines, audio_length):
+    total_lines = len(lyrics_lines)
+    delay_per_line = audio_length / total_lines
 
+    # Give user time to prepare
+    print("\nGet ready to sing!\n")
+    time.sleep(3)
+
+    for idx, line in enumerate(lyrics_lines):
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print("🎤 Karaoke Mode 🎤\n")
+        for i, l in enumerate(lyrics_lines):
+            if i == idx:
+                print(f">>> {l.upper()} <<<")  # Highlight current line
+            else:
+                print(l)
+        time.sleep(delay_per_line)
+
+# === PLAY AUDIO AND DISPLAY LYRICS ===
 print("Starting the karaoke session!")
 
 # Initialize pygame mixer
@@ -69,15 +77,10 @@ pygame.mixer.init()
 
 # Load and play audio
 pygame.mixer.music.load("song.mp3")
-audio = MP3("song.mp3")
-duration = audio.info.length
-
-# Start music
 pygame.mixer.music.play()
 
-# Start lyrics display thread
-# Adjust `pre_delay` and `line_delay` as needed for better sync!
-lyrics_thread = threading.Thread(target=display_lyrics, args=(lyrics_lines, 3.0, 2.0))
+# Start lyrics display in parallel
+lyrics_thread = threading.Thread(target=print_highlighted_lyrics, args=(lyrics_lines, audio_length))
 lyrics_thread.start()
 
 # Wait for music to finish

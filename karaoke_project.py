@@ -22,7 +22,7 @@ song = genius.search_song(song_name)
 if song:
     print("\nLyrics found!\n")
     lyrics = song.lyrics
-    lyrics_lines = [line.strip() for line in lyrics.split('\n') if line.strip()]
+    lyrics_lines = lyrics.split('\n')
 else:
     print("Lyrics not found.")
     exit()
@@ -50,48 +50,54 @@ def download_audio(search_query):
 download_audio(song_name)
 print("Audio downloaded!")
 
-# === GET AUDIO LENGTH ===
-audio = MP3("song.mp3")
-audio_length = audio.info.length
-
-# === HIGHLIGHT FUNCTION ===
-def print_highlighted_lyrics(lyrics_lines, audio_length):
-    total_lines = len(lyrics_lines)
-    delay_per_line = audio_length / total_lines
-
-    # Give user time to prepare
-    print("\nGet ready to sing!\n")
-    time.sleep(3)
-
-    # Force clear before first line
-    os.system('cls' if os.name == 'nt' else 'clear')
-    print("\n🎤 Karaoke Mode 🎤\n")
-
-    for idx, line in enumerate(lyrics_lines):
-        if idx != 0:
-            os.system('cls' if os.name == 'nt' else 'clear')
-            print("🎤 Karaoke Mode 🎤\n")
-
-        for i, l in enumerate(lyrics_lines):
-            if i == idx:
-                print(Fore.GREEN + Style.BRIGHT + f">>> {l.upper()} <<<" + Style.RESET_ALL)
-            else:
-                print(Fore.YELLOW + Style.NORMAL + l)
-        time.sleep(delay_per_line)
-
 # === PLAY AUDIO AND DISPLAY LYRICS ===
+def display_lyrics(lyrics_lines, song_duration):
+    # Prepare user with countdown
+    print("\nGet ready to sing!\n")
+    for count in range(3, 0, -1):
+        print(f"{count}...")
+        time.sleep(1)
+    print("🎤 Karaoke Mode 🎤\n")
+    time.sleep(0.5)
+
+    # Calculate line timing
+    num_lines = len(lyrics_lines)
+    line_duration = song_duration / num_lines if num_lines > 0 else 0
+
+    for i, line in enumerate(lyrics_lines):
+        # Clear screen (works on most OS)
+        os.system('cls' if os.name == 'nt' else 'clear')
+
+        # Add initial spacing for breathing room
+        print("\n\n🎤 Karaoke Mode 🎤\n")
+
+        # Display lyrics with current line highlighted
+        for j, lyric_line in enumerate(lyrics_lines):
+            if j == i:
+                print(Fore.LIGHTGREEN_EX + Style.BRIGHT + ">>> " + lyric_line.strip() + " <<<")
+            else:
+                print(Fore.YELLOW + lyric_line.strip())
+
+        time.sleep(line_duration)
+
 print("Starting the karaoke session!")
 
 # Initialize pygame mixer
 pygame.mixer.init()
 
-# Load and play audio
+# Load audio
 pygame.mixer.music.load("song.mp3")
-pygame.mixer.music.play()
+
+# Get audio duration
+audio = MP3("song.mp3")
+song_duration = audio.info.length
 
 # Start lyrics display in parallel
-lyrics_thread = threading.Thread(target=print_highlighted_lyrics, args=(lyrics_lines, audio_length))
+lyrics_thread = threading.Thread(target=display_lyrics, args=(lyrics_lines, song_duration))
 lyrics_thread.start()
+
+# Play music
+pygame.mixer.music.play()
 
 # Wait for music to finish
 while pygame.mixer.music.get_busy():

@@ -5,10 +5,6 @@ import threading
 import time
 import pygame
 from mutagen.mp3 import MP3
-from colorama import init, Fore, Style
-
-# Initialize colorama
-init(autoreset=True)
 
 # === SETUP ===
 GENIUS_API_TOKEN = "Ck5Q6uo_T8LYrAKw8l8e7i1jhqLox4l-9zrb1cd4oUvuWUkP_d2fPFv_hhwjv2m-"  # <-- your token
@@ -23,6 +19,12 @@ if song:
     print("\nLyrics found!\n")
     lyrics = song.lyrics
     lyrics_lines = lyrics.split('\n')
+
+    # Clean up the lyrics:
+    lyrics_lines = [
+        line.strip() for line in lyrics_lines
+        if line.strip() and not (line.strip().startswith('[') and line.strip().endswith(']'))
+    ]
 else:
     print("Lyrics not found.")
     exit()
@@ -50,54 +52,45 @@ def download_audio(search_query):
 download_audio(song_name)
 print("Audio downloaded!")
 
-# === PLAY AUDIO AND DISPLAY LYRICS ===
-def display_lyrics(lyrics_lines, song_duration):
-    # Prepare user with countdown
-    print("\nGet ready to sing!\n")
-    for count in range(3, 0, -1):
-        print(f"{count}...")
+# === GET AUDIO DURATION ===
+audio = MP3("song.mp3")
+audio_duration = audio.info.length
+
+# === COLORED LYRICS DISPLAY FUNCTION ===
+def display_lyrics(lyrics_lines, total_duration):
+    print("\n🎤 Get ready to sing! 🎤")
+    for i in range(3, 0, -1):
+        print(f"Starting in {i}...")
         time.sleep(1)
-    print("🎤 Karaoke Mode 🎤\n")
-    time.sleep(0.5)
 
-    # Calculate line timing
-    num_lines = len(lyrics_lines)
-    line_duration = song_duration / num_lines if num_lines > 0 else 0
+    time.sleep(1)  # Small buffer after countdown
 
-    for i, line in enumerate(lyrics_lines):
-        # Clear screen (works on most OS)
+    interval = total_duration / len(lyrics_lines)
+
+    for idx, current_line in enumerate(lyrics_lines):
         os.system('cls' if os.name == 'nt' else 'clear')
+        print()  # Newline before first lyric
 
-        # Add initial spacing for breathing room
-        print("\n\n🎤 Karaoke Mode 🎤\n")
-
-        # Display lyrics with current line highlighted
-        for j, lyric_line in enumerate(lyrics_lines):
-            if j == i:
-                print(Fore.LIGHTGREEN_EX + Style.BRIGHT + ">>> " + lyric_line.strip() + " <<<")
+        for line_idx, line in enumerate(lyrics_lines):
+            if line_idx == idx:
+                print(f"\033[92m{line}\033[0m")  # Bright green
             else:
-                print(Fore.YELLOW + lyric_line.strip())
+                print(f"\033[93m{line}\033[0m")  # Yellow
 
-        time.sleep(line_duration)
+        time.sleep(interval)
 
 print("Starting the karaoke session!")
 
 # Initialize pygame mixer
 pygame.mixer.init()
-
-# Load audio
 pygame.mixer.music.load("song.mp3")
 
-# Get audio duration
-audio = MP3("song.mp3")
-song_duration = audio.info.length
+# Start music playback
+pygame.mixer.music.play()
 
 # Start lyrics display in parallel
-lyrics_thread = threading.Thread(target=display_lyrics, args=(lyrics_lines, song_duration))
+lyrics_thread = threading.Thread(target=display_lyrics, args=(lyrics_lines, audio_duration))
 lyrics_thread.start()
-
-# Play music
-pygame.mixer.music.play()
 
 # Wait for music to finish
 while pygame.mixer.music.get_busy():

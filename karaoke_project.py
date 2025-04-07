@@ -1,9 +1,9 @@
-from lyricsgenius import Genius
-import yt_dlp
 import os
 import threading
 import time
 import pygame
+import yt_dlp
+from lyricsgenius import Genius
 from mutagen.mp3 import MP3
 
 # === SETUP ===
@@ -18,7 +18,7 @@ song = genius.search_song(song_name)
 if song:
     print("\nLyrics found!\n")
     lyrics = song.lyrics
-    lyrics_lines = [line.strip() for line in song.lyrics.split('\n') if line.strip()]
+    lyrics_lines = lyrics.split('\n')
 else:
     print("Lyrics not found.")
     exit()
@@ -46,27 +46,23 @@ def download_audio(search_query):
 download_audio(song_name)
 print("Audio downloaded!")
 
-# === GET SONG DURATION ===
-audio = MP3("song.mp3")
-duration = audio.info.length
-
-# === DISPLAY LYRICS SYNCHRONIZED WITH HIGHLIGHT ===
+# === SYNC LYRICS WITH AUDIO ===
 def display_lyrics(lyrics_lines, duration):
-    time.sleep(1)  # Small pause before starting lyrics
-    time_per_line = duration / len(lyrics_lines) if lyrics_lines else 0
+    total_lines = len(lyrics_lines)
+    interval = duration / total_lines
 
-    for index, line in enumerate(lyrics_lines):
-        # Clear screen before printing
-        os.system('cls' if os.name == 'nt' else 'clear')
+    # Add some space before lyrics for visual clarity
+    print("\n🎤 Get ready to sing! 🎤")
+    time.sleep(1)
+    for countdown in range(3, 0, -1):
+        print(f"Starting in {countdown}...")
+        time.sleep(1)
+    print("Let's go!\n")
+    time.sleep(0.5)  # Tiny pause after countdown
 
-        # Print all lyrics with current line highlighted
-        for i, l in enumerate(lyrics_lines):
-            if i == index:
-                print(f"\033[93m{l}\033[0m")  # Yellow highlight
-            else:
-                print(l)
-        
-        time.sleep(time_per_line)
+    for line in lyrics_lines:
+        print(f"\033[92m{line.strip()}\033[0m")  # Green text for highlight
+        time.sleep(interval)
 
 print("Starting the karaoke session!")
 
@@ -76,7 +72,11 @@ pygame.mixer.init()
 # Load audio
 pygame.mixer.music.load("song.mp3")
 
-# Start music playback
+# Get audio duration
+audio = MP3("song.mp3")
+duration = audio.info.length
+
+# Play music
 pygame.mixer.music.play()
 
 # Start lyrics display in parallel

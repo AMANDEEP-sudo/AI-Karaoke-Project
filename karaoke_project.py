@@ -5,6 +5,10 @@ import threading
 import time
 import pygame
 from mutagen.mp3 import MP3
+from colorama import init, Fore, Style
+
+# Initialize colorama
+init(autoreset=True)
 
 # === SETUP ===
 GENIUS_API_TOKEN = "Ck5Q6uo_T8LYrAKw8l8e7i1jhqLox4l-9zrb1cd4oUvuWUkP_d2fPFv_hhwjv2m-"  # <-- your token
@@ -64,9 +68,11 @@ def print_highlighted_lyrics(lyrics_lines, audio_length):
         print("🎤 Karaoke Mode 🎤\n")
         for i, l in enumerate(lyrics_lines):
             if i == idx:
-                print(f">>> {l.upper()} <<<")  # Highlight current line
+                # Bright green for current line
+                print(Fore.GREEN + Style.BRIGHT + f">>> {l.upper()} <<<" + Style.RESET_ALL)
             else:
-                print(l)
+                # Yellow for other lines
+                print(Fore.YELLOW + Style.NORMAL + l)
         time.sleep(delay_per_line)
 
 # === PLAY AUDIO AND DISPLAY LYRICS ===

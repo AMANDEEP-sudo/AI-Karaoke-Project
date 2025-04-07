@@ -18,7 +18,7 @@ song = genius.search_song(song_name)
 if song:
     print("\nLyrics found!\n")
     lyrics = song.lyrics
-    lyrics_lines = lyrics.split('\n')
+    lyrics_lines = [line.strip() for line in song.lyrics.split('\n') if line.strip()]
 else:
     print("Lyrics not found.")
     exit()
@@ -46,41 +46,38 @@ def download_audio(search_query):
 download_audio(song_name)
 print("Audio downloaded!")
 
-# === SYNC LYRICS WITH AUDIO ===
-def display_lyrics(lyrics_lines, duration):
-    total_lines = len(lyrics_lines)
-    interval = duration / total_lines
-
-    # Add some space before lyrics for visual clarity
-    print("\n🎤 Get ready to sing! 🎤")
-    time.sleep(1)
+# === DISPLAY LYRICS FUNCTION ===
+def display_lyrics(lyrics_lines, pre_delay=3.0, line_delay=2.0):
+    # Preparation countdown
+    print("\n🎤 Get ready to sing! 🎤\n")
     for countdown in range(3, 0, -1):
         print(f"Starting in {countdown}...")
         time.sleep(1)
     print("Let's go!\n")
-    time.sleep(0.5)  # Tiny pause after countdown
+    time.sleep(pre_delay)  # Extra wait for sync
 
+    # Display lyrics line by line
     for line in lyrics_lines:
-        print(f"\033[92m{line.strip()}\033[0m")  # Green text for highlight
-        time.sleep(interval)
+        os.system('cls' if os.name == 'nt' else 'clear')  # Clear terminal
+        print(f"\033[92m{line}\033[0m")  # Green highlight
+        time.sleep(line_delay)
 
 print("Starting the karaoke session!")
 
 # Initialize pygame mixer
 pygame.mixer.init()
 
-# Load audio
+# Load and play audio
 pygame.mixer.music.load("song.mp3")
-
-# Get audio duration
 audio = MP3("song.mp3")
 duration = audio.info.length
 
-# Play music
+# Start music
 pygame.mixer.music.play()
 
-# Start lyrics display in parallel
-lyrics_thread = threading.Thread(target=display_lyrics, args=(lyrics_lines, duration))
+# Start lyrics display thread
+# Adjust `pre_delay` and `line_delay` as needed for better sync!
+lyrics_thread = threading.Thread(target=display_lyrics, args=(lyrics_lines, 3.0, 2.0))
 lyrics_thread.start()
 
 # Wait for music to finish

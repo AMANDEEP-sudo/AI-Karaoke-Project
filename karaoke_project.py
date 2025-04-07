@@ -63,15 +63,19 @@ def print_highlighted_lyrics(lyrics_lines, audio_length):
     print("\nGet ready to sing!\n")
     time.sleep(3)
 
+    # Force clear before first line
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("\n🎤 Karaoke Mode 🎤\n")
+
     for idx, line in enumerate(lyrics_lines):
-        os.system('cls' if os.name == 'nt' else 'clear')
-        print("🎤 Karaoke Mode 🎤\n")
+        if idx != 0:
+            os.system('cls' if os.name == 'nt' else 'clear')
+            print("🎤 Karaoke Mode 🎤\n")
+
         for i, l in enumerate(lyrics_lines):
             if i == idx:
-                # Bright green for current line
                 print(Fore.GREEN + Style.BRIGHT + f">>> {l.upper()} <<<" + Style.RESET_ALL)
             else:
-                # Yellow for other lines
                 print(Fore.YELLOW + Style.NORMAL + l)
         time.sleep(delay_per_line)
 

@@ -7,7 +7,7 @@ import pygame
 from mutagen.mp3 import MP3
 
 # === SETUP ===
-GENIUS_API_TOKEN = "Ck5Q6uo_T8LYrAKw8l8e7i1jhqLox4l-9zrb1cd4oUvuWUkP_d2fPFv_hhwjv2m-"  # <-- token
+GENIUS_API_TOKEN = "Ck5Q6uo_T8LYrAKw8l8e7i1jhqLox4l-9zrb1cd4oUvuWUkP_d2fPFv_hhwjv2m-"
 genius = Genius(GENIUS_API_TOKEN)
 
 # === USER INPUT ===

@@ -56,7 +56,7 @@ print("Audio downloaded!")
 audio = MP3("song.mp3")
 audio_duration = audio.info.length
 
-# === COLORED LYRICS DISPLAY FUNCTION ===
+# === COLOURED LYRICS DISPLAY FUNCTION ===
 def display_lyrics(lyrics_lines, total_duration):
     print("\n🎤 Get ready to sing! 🎤")
     for i in range(3, 0, -1):

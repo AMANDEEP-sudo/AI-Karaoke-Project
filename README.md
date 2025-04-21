@@ -18,6 +18,7 @@ An interactive, console-based karaoke experience powered by Python. This project
 ## 🧠 AI Component
 
 This project demonstrates a **basic level of AI integration** through:
+
 - **Intelligent lyric parsing** using NLP-like filtering to clean up non-singing parts like `[Chorus]`, `[Verse]`, etc.
 - **Synchronized timing logic**, where lyric display is mapped proportionally across the total audio duration.
 - While no deep learning model is used, the real-time behavior mimics human timing and enhances interactivity using simple automation and logic.
@@ -38,12 +39,14 @@ This project demonstrates a **basic level of AI integration** through:
 ## 🛆 Installation
 
 1. Clone this repo:
+
    ```bash
    git clone https://github.com/YourUsername/ai-karaoke-project
    cd ai-karaoke-project
    ```
 
 2. Install the required packages:
+
    ```bash
    pip install -r requirements.txt
    ```
@@ -75,8 +78,3 @@ python karaoke.py
 This project showcases how Python can be used creatively to blend media processing, simple automation, and interactive design. It’s a great demonstration of AI principles in real-time systems.
 
 ---
-
-## 👨‍💻 Author
-
-**Saptaparno Chakraborty**  
-BTech CSE Student | Full Stack Dev | Indie Game Dev Enthusiast
